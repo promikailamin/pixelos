@@ -1,0 +1,43 @@
+Merged ROM manifest - Redmi Note 11 Pro 5G (veux)
+=================================================
+
+Package: veux_merged_fastboot_rom
+Generated: 2026-11-22 (CI runner, untested)
+
+SOURCE 1 - OFFICIAL ROM (firmware + structure)
+  URL: https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS1.0.12.0.TKCMIXM/veux_global_images_OS1.0.12.0.TKCMIXM_20241205.0000.00_13.0_global_cda1240a45.tgz
+  File: official_rom.tgz (5.8 GB)
+  Type: Xiaomi fastboot / MSMDownload firehose package
+  Version: OS1.0.12.0.TKCMIXM (Global, HyperOS, Android 13)
+
+SOURCE 2 - CUSTOM ROM (payload)
+  URL: https://drive.google.com/file/d/1M2JtqUxlRHQA10OKCjaSRTaHjmCT00Ec/view?usp=sharing
+  File: custom_rom (2.33 GB, signed OTA zip)
+  Type: OTA payload (payload.bin)
+  Extracted with: payload_dumper
+
+DEVICE
+  Codename: veux (Redmi Note 11 Pro 5G / POCO X4 Pro 5G)
+  Platform: Qualcomm Snapdragon 695 (SM6375)
+  RAM/Storage: 8 GB / 128 GB
+  Partitions: Virtual A/B, dynamic partitions inside super (~8 GB)
+  Bootloader-verified partitions: boot, dtbo, vbmeta, vbmeta_system (physical)
+
+MERGE POLICY
+  - Official firmware + flash structure kept (bootloader/modem/ABL/etc. must match hardware)
+  - Custom system/vendor/product/system_ext taken from custom payload
+  - Official boot.img/dtbo.img/vbmeta.img/vbmeta_system.img kept (verified-boot chain)
+  - userdata.img intentionally excluded (do not flash user data)
+  - super.img NOT rebuilt (requires lpmake; see README_MERGE.md)
+
+FILES IN images/
+  OFFICIAL: boot.img vendor_boot.img dtbo.img vbmeta.img vbmeta_system.img rescue.img cust.img
+            abl.elf tz.mbn rpm.mbn devcfg.mbn hyp.mbn xbl_config.elf NON-HLOS.bin Core_NON-HLOS.bin
+            BTFM.bin dspso.bin imagefv.elf featenabler.mbn qupv3fw.elf
+            prog_firehose_ddr.elf prog_firehose_lite.elf gpt_*.bin rawprogram*.xml patch*.xml crclist.txt sparsecrclist.txt
+  CUSTOM:   custom_system.img custom_vendor.img custom_product.img custom_system_ext.img custom_boot.img custom_dtbo.img
+  TOP LEVEL: misc.txt anti_version.txt elf_path.txt crclist.txt
+
+SAFETY
+  UNTESTED. NOT verified to boot. AVB disabled-verification and unlocked bootloader required.
+  See README_MERGE.md for full warnings.
