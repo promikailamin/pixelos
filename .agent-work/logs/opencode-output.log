@@ -1,0 +1,300 @@
+[0m
+> build · nemotron-3.5-super-vl-free
+[0m
+[0m$ [0mcd /home/runner/work/pixelos/pixelos && git log --oneline -10 && echo "---" && git status
+3d5739e docs(tools): add merged veux ROM package docs and build script
+c81ecb7 Update OpenCode model from deepseek to nemotron
+59558c8 Add OpenCode workflow for issue handling
+---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.agent-work/logs/
+	.agent-work/tmp/
+
+nothing added to commit but untracked files present (use "git add" to track)
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead .github
+[0m→ [0mRead .agent-work
+[0m→ [0mRead .github/workflows
+[0m→ [0mRead .agent-work/tools
+[0m→ [0mRead .agent-work/logs
+[0m→ [0mRead .github/workflows/opencode.yml
+[0m→ [0mRead .agent-work/tools/build_merge.sh
+[0m→ [0mRead .agent-work/tools/sparse_unsparse.py
+[0m→ [0mRead .agent-work/logs/opencode-output.log
+[0m→ [0mRead .agent-work/outputs
+[0m→ [0mRead .agent-work/tests
+[0m→ [0mRead .agent-work/tmp
+[0m
+[0m$ [0mcd /home/runner/work/pixelos/pixelos/.agent-work/outputs/veux_merged_fastboot_rom && ls -la images/ 2>/dev/null; echo "---"; ls -la
+---
+total 20
+drwxr-xr-x 2 runner runner 4096 Nov 22 11:57 .
+drwxr-xr-x 3 runner runner 4096 Nov 22 11:57 ..
+-rw-r--r-- 1 runner runner 4254 Nov 22 11:57 README_MERGE.md
+-rw-r--r-- 1 runner runner 2205 Nov 22 11:57 merge_manifest.txt
+[0m
+[0m→ [0mRead .agent-work/outputs/veux_merged_fastboot_rom/README_MERGE.md
+[0m→ [0mRead .agent-work/outputs/veux_merged_fastboot_rom/merge_manifest.txt
+[0m
+[0m$ [0mls -la /home/runner/work/pixelos/pixelos/.agent-work/tmp/work/ 2>&1; echo "---find images---"; find /home/runner/work/pixelos/pixelos/.agent-work -name "*.img" 2>/dev/null | head -50
+ls: cannot access '/home/runner/work/pixelos/pixelos/.agent-work/tmp/work/': No such file or directory
+---find images---
+[0m
+[0m$ [0mwhich lpmake fastboot lpunpack img2simg simg2img 2>&1; echo "---apt---"; apt list --installed 2>/dev/null | grep -iE "android|lpmake|sparse" 2>&1 | head; echo "---python---"; python3 --version 2>&1
+---apt---
+---python---
+Python 3.14.4
+[0m
+[0m$ [0mtimeout 10 apt-get update 2>&1 | tail -5; echo "===cache==="; apt-cache search lpmake 2>&1 | head; echo "===android-tools==="; apt-cache search android-tools 2>&1 | head
+Reading package lists...
+E: Could not open lock file /var/lib/apt/lists/lock - open (13: Permission denied)
+E: Unable to lock directory /var/lib/apt/lists/
+===cache===
+===android-tools===
+adb - Android Debug Bridge
+adbd - Android Debug Bridge daemon
+fastboot - Android fastboot tool
+libandroid-tools-analytics-library-java - Libraries for tracking the usage analytics of Android SDK
+libandroid-tools-annotations-java - annotations used throughout the Android tools libraries
+libandroid-tools-common-java - common library used by other Android tools libraries
+libandroid-tools-dvlib-java - Library to manage the Android device database XML files
+libandroid-tools-repository-java - Library for downloading and managing package repositories
+libandroid-tools-sdklib-java - Library to parse and download the Android SDK
+google-android-tools-installer - Google's 'Android SDK Tools' Installer
+[0m
+[0m$ [0mtimeout 8 curl -sI https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip 2>&1 | head -3; echo "==="; timeout 8 curl -sI https://github.com 2>&1 | head -3
+HTTP/2 200 
+accept-ranges: bytes
+content-disposition: attachment
+===
+HTTP/2 200 
+date: Sun, 22 Nov 2026 11:58:30 GMT
+content-type: text/html; charset=utf-8
+[0m
+[0m# [0mTodos
+[•] Update build_merge.sh to rebuild super.img via lpmake from custom images
+[ ] Switch physical partition images (boot/vendor_boot/dtbo/vbmeta) to custom ROM source
+[ ] Add lpmake/android-tools install step
+[ ] Update README_MERGE.md and merge_manifest.txt
+[ ] Commit and push changes
+[ ] Comment on issue #5
+[0m
+Now I understand the context. The repo maintains a merged fastboot ROM for the `veux` device. `build_merge.sh` does not rebuild `super.img` (requires `lpmake`) and keeps official physical images. The issue asks to rebuild `super.img` in the runner and use custom-ROM images for boot/vendor_boot/vendor/dtbo.
+
+Let me set up a todo list and implement.
+[0m← [0mWrite .agent-work/tools/build_merge.sh
+Wrote file successfully.
+[0m
+[0m← [0mWrite .agent-work/tools/build_merge.sh
+Wrote file successfully.
+[0m
+The partition sizes I hardcoded are incorrect (each logical partition can't be the full super size). Let me revise with per-partition sizes and size detection from the official super image.
+[0m# [0mTodos
+[✓] Update build_merge.sh to rebuild super.img via lpmake from custom images
+[✓] Switch physical partition images (boot/vendor_boot/dtbo/vbmeta) to custom ROM source
+[•] Add lpmake/android-tools install step
+[ ] Update README_MERGE.md and merge_manifest.txt
+[ ] Validate script syntax (bash -n)
+[ ] Commit and push changes
+[ ] Comment on issue #5
+[0m
+[0m$ [0mcd /home/runner/work/pixelos/pixelos && bash -n .agent-work/tools/build_merge.sh && echo "SYNTAX OK"
+SYNTAX OK
+[0m
+[0m→ [0mRead .agent-work/outputs/veux_merged_fastboot_rom/README_MERGE.md[90m [limit=10, offset=21][0m
+Now let me validate syntax and update the documentation files.
+[0m
+[0m← [0mEdit .agent-work/outputs/veux_merged_fastboot_rom/README_MERGE.md
+Index: /home/runner/work/pixelos/pixelos/.agent-work/outputs/veux_merged_fastboot_rom/README_MERGE.md
+===================================================================
+--- /home/runner/work/pixelos/pixelos/.agent-work/outputs/veux_merged_fastboot_rom/README_MERGE.md
++++ /home/runner/work/pixelos/pixelos/.agent-work/outputs/veux_merged_fastboot_rom/README_MERGE.md
+@@ -13,17 +13,36 @@
+ | Component | Source | Notes |
+ |-----------|--------|-------|
+ | bootloader, modem, abl, tz, rpm, devcfg, hyp, xbl, qupfw, NON-HLOS, Core_NON-HLOS, ... | OFFICIAL | Hardware-specific firmware; must stay official |
+ | gpt partition table, rawprogram/patch XML, prog_firehose ELFs | OFFICIAL | Flash instructions for MSMDownload/fastboot |
+-| boot.img, vendor_boot.img, dtbo.img, vbmeta.img, vbmeta_system.img, rescue.img, cust.img | OFFICIAL | Verified-boot chain kept official |
++| boot.img, vendor_boot.img, dtbo.img, vbmeta.img, vbmeta_system.img, rescue.img, cust.img | CUSTOM | Physical partitions taken from custom ROM (fall back to official if missing from payload) |
+ | system.img, vendor.img, product.img, system_ext.img | CUSTOM | Extracted from custom `payload.bin` |
++| super.img | REBUILT | Rebuilt from custom logical partitions with `lpmake` using official partition sizes |
+ | misc.txt, anti_version.txt | OFFICIAL | Package metadata |
+ 
++## How the merge is built
++Run `.agent-work/tools/build_merge.sh` from the repo root in a runner that has
++`lpmake` (AOSP `system/tools/lpmake`) and `fastboot` (android-tools) in PATH.
++The script:
++1. Copies official firmware + flash structure (kept official).
++2. Copies physical partition images from the custom ROM (official fallback).
++3. Copies custom logical images (system/vendor/product/system_ext).
++4. Rebuilds `super.img` with `lpmake --partition system:... --partition vendor:... ...`.
++5. Copies package metadata.
++
++Logical partition sizes default to compiled-in values and **must** be verified
++against the official `super.img` (`lpunpack`). Override via env vars:
++`SUPER_SIZE`, `SUPER_SYSTEM_SIZE`, `SUPER_VENDOR_SIZE`, `SUPER_PRODUCT_SIZE`,
++`SUPER_SYSTEM_EXT_SIZE`.
++
+ ## What is NOT included / what still must be done
+-1. **`super.img` is NOT rebuilt.** On veux (Virtual A/B, dynamic partitions), `system`, `vendor`, `product`, `system_ext` live *inside* `super.img`. This package provides them as separate `custom_*.img` files. You must rebuild `super.img` with `lpmake` (Android SDK) using the custom images and the official partition sizes, then place it in `images/`.
+-   - `lpmake` is not installed in this runner; it was not available via apt.
++1. **`super.img` IS rebuilt** by `build_merge.sh` using `lpmake` from the custom
++   `system`/`vendor`/`product`/`system_ext` images. Verify the partition sizes
++   match your official `super.img` before flashing.
+ 2. **`userdata.img` is intentionally excluded.** Flashing it would overwrite user data. Wipe userdata via fastboot instead.
+-3. **`custom_boot.img` / `custom_dtbo.img` are provided as alternatives.** The package uses OFFICIAL `boot.img`, `dtbo.img`, `vbmeta.img`, `vbmeta_system.img` to keep the verified-boot chain consistent with the official firmware.
++3. **`lpmake` must be available in PATH.** It is not distributed via apt; build it
++   from AOSP `system/tools/lpmake` or provide a prebuilt binary. `fastboot` is
++   provided by android-tools / platform-tools.
+ 
+ ## CRITICAL SAFETY WARNINGS — READ BEFORE FLASHING
+ - **This merged ROM is UNTESTED. It was built in a CI runner and has NOT been flashed to a real device.** Flashing it may soft-brick (bootloop) or hard-brick your Redmi Note 11 Pro 5G.
+ - **AVB / Verified Boot:** The custom `system`/`vendor` images are NOT signed with Xiaomi's keys, and the custom `vbmeta.img`/`vbmeta_system.img` extracted from the payload are stubs (8 KB / 4 KB). Flashing this on a **locked bootloader with AVB enforced will FAIL to boot**. You must have an **unlocked bootloader** and disable AVB verification (e.g. `fastboot --disable-verity --disable-verification flash vbmeta ...` or flash a disabled-vbmeta), otherwise the device will refuse to boot.
+
+[0m
+[0m← [0mEdit .agent-work/outputs/veux_merged_fastboot_rom/merge_manifest.txt
+Index: /home/runner/work/pixelos/pixelos/.agent-work/outputs/veux_merged_fastboot_rom/merge_manifest.txt
+===================================================================
+--- /home/runner/work/pixelos/pixelos/.agent-work/outputs/veux_merged_fastboot_rom/merge_manifest.txt
++++ /home/runner/work/pixelos/pixelos/.agent-work/outputs/veux_merged_fastboot_rom/merge_manifest.txt
+@@ -25,18 +25,18 @@
+ 
+ MERGE POLICY
+   - Official firmware + flash structure kept (bootloader/modem/ABL/etc. must match hardware)
+   - Custom system/vendor/product/system_ext taken from custom payload
+-  - Official boot.img/dtbo.img/vbmeta.img/vbmeta_system.img kept (verified-boot chain)
++  - Physical boot.img/vendor_boot.img/dtbo.img/vbmeta.img/vbmeta_system.img taken from custom ROM (official fallback if missing)
++  - super.img REBUILT from custom logical partitions with lpmake (official partition sizes)
+   - userdata.img intentionally excluded (do not flash user data)
+-  - super.img NOT rebuilt (requires lpmake; see README_MERGE.md)
+ 
+ FILES IN images/
+-  OFFICIAL: boot.img vendor_boot.img dtbo.img vbmeta.img vbmeta_system.img rescue.img cust.img
+-            abl.elf tz.mbn rpm.mbn devcfg.mbn hyp.mbn xbl_config.elf NON-HLOS.bin Core_NON-HLOS.bin
++  OFFICIAL: abl.elf tz.mbn rpm.mbn devcfg.mbn hyp.mbn xbl_config.elf NON-HLOS.bin Core_NON-HLOS.bin
+             BTFM.bin dspso.bin imagefv.elf featenabler.mbn qupv3fw.elf
+             prog_firehose_ddr.elf prog_firehose_lite.elf gpt_*.bin rawprogram*.xml patch*.xml crclist.txt sparsecrclist.txt
+-  CUSTOM:   custom_system.img custom_vendor.img custom_product.img custom_system_ext.img custom_boot.img custom_dtbo.img
++  CUSTOM:   boot.img vendor_boot.img dtbo.img vbmeta.img vbmeta_system.img rescue.img cust.img
++            custom_system.img custom_vendor.img custom_product.img custom_system_ext.img super.img
+   TOP LEVEL: misc.txt anti_version.txt elf_path.txt crclist.txt
+ 
+ SAFETY
+   UNTESTED. NOT verified to boot. AVB disabled-verification and unlocked bootloader required.
+
+[0m
+[0m# [0mTodos
+[✓] Update build_merge.sh to rebuild super.img via lpmake from custom images
+[✓] Switch physical partition images (boot/vendor_boot/dtbo/vbmeta) to custom ROM source
+[✓] Add lpmake/android-tools install step
+[✓] Update README_MERGE.md and merge_manifest.txt
+[✓] Validate script syntax (bash -n)
+[•] Commit and push changes
+[ ] Comment on issue #5
+[0m
+[0m$ [0mcd /home/runner/work/pixelos/pixelos && git status --short && echo "---" && git diff --stat
+M .agent-work/outputs/veux_merged_fastboot_rom/README_MERGE.md
+ M .agent-work/outputs/veux_merged_fastboot_rom/merge_manifest.txt
+ M .agent-work/tools/build_merge.sh
+?? .agent-work/logs/
+?? .agent-work/tmp/
+---
+ .../veux_merged_fastboot_rom/README_MERGE.md       |  27 +++-
+ .../veux_merged_fastboot_rom/merge_manifest.txt    |  10 +-
+ .agent-work/tools/build_merge.sh                   | 140 +++++++++++++++++++--
+ 3 files changed, 155 insertions(+), 22 deletions(-)
+[0m
+[0m$ [0mcd /home/runner/work/pixelos/pixelos && git add .agent-work/tools/build_merge.sh .agent-work/outputs/veux_merged_fastboot_rom/README_MERGE.md .agent-work/outputs/veux_merged_fastboot_rom/merge_manifest.txt && git commit -m "fix(tools): rebuild super.img and use custom ROM physical images
+
+- build_merge.sh: rebuild super.img from custom system/vendor/product/system_ext
+  via lpmake (partition sizes detectable from official super via lpunpack, or
+  overridden via env vars)
+- build_merge.sh: source physical images (boot/vendor_boot/dtbo/vbmeta/...)
+  from the custom ROM with official fallback; firmware/flash structure stays
+  official
+- build_merge.sh: check for lpmake/fastboot with clear install instructions
+- README_MERGE.md / merge_manifest.txt: document rebuilt super.img and custom
+  physical-image sources" && echo "---" && git log --oneline -3
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: empty ident name (for <runner@runnervm0hi8g.ig43cqcci1gejdzkoztyar2hqf.gx.internal.cloudapp.net>) not allowed
+[0m
+[0m$ [0mcd /home/runner/work/pixelos/pixelos && git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com" && git commit -m "fix(tools): rebuild super.img and use custom ROM physical images
+
+- build_merge.sh: rebuild super.img from custom system/vendor/product/system_ext
+  via lpmake (partition sizes detectable from official super via lpunpack, or
+  overridden via env vars)
+- build_merge.sh: source physical images (boot/vendor_boot/dtbo/vbmeta/...)
+  from the custom ROM with official fallback; firmware/flash structure stays
+  official
+- build_merge.sh: check for lpmake/fastboot with clear install instructions
+- README_MERGE.md / merge_manifest.txt: document rebuilt super.img and custom
+  physical-image sources" && echo "---" && git log --oneline -3
+[main 08d0e09] fix(tools): rebuild super.img and use custom ROM physical images
+ 3 files changed, 155 insertions(+), 22 deletions(-)
+---
+08d0e09 fix(tools): rebuild super.img and use custom ROM physical images
+3d5739e docs(tools): add merged veux ROM package docs and build script
+c81ecb7 Update OpenCode model from deepseek to nemotron
+[0m
+[0m$ [0mcd /home/runner/work/pixelos/pixelos && git push origin main 2>&1
+To https://github.com/promikailamin/pixelos
+   3d5739e..08d0e09  main -> main
+[0m
+[0m# [0mTodos
+[✓] Update build_merge.sh to rebuild super.img via lpmake from custom images
+[✓] Switch physical partition images (boot/vendor_boot/dtbo/vbmeta) to custom ROM source
+[✓] Add lpmake/android-tools install step
+[✓] Update README_MERGE.md and merge_manifest.txt
+[✓] Validate script syntax (bash -n)
+[✓] Commit and push changes
+[•] Comment on issue #5
+[0m
+[0m$ [0mcd /home/runner/work/pixelos/pixelos && gh issue comment "5" --repo "promikailamin/pixelos" --body "Fixed in commit 08d0e09 (pushed to main).
+
+Changes in .agent-work/tools/build_merge.sh:
+- super.img is now REBUILT from the custom system/vendor/product/system_ext images using lpmake (partition sizes detected from official super via lpunpack, or overridden via SUPER_* env vars).
+- Physical partition images (boot.img, vendor_boot.img, dtbo.img, vbmeta.img, vbmeta_system.img, rescue.img, cust.img) now come from the CUSTOM ROM with official fallback.
+- Firmware/flash-structure (bootloader/modem/gpt/rawprogram/firehose) stays official.
+- Added lpmake/fastboot tool check with install instructions.
+
+Updated README_MERGE.md and merge_manifest.txt accordingly.
+
+Note: I could not run a full end-to-end build in this ephemeral runner because it requires downloading the official (~5.8 GB) and custom (~2.33 GB) images and a prebuilt lpmake binary (not available via apt). The script is syntax-validated (bash -n) and ready to run in a runner with lpmake + fastboot in PATH and the images extracted." 2>&1
+https://github.com/promikailamin/pixelos/issues/5#issuecomment-7078811389
+[0m
+[0m# [0mTodos
+[✓] Update build_merge.sh to rebuild super.img via lpmake from custom images
+[✓] Switch physical partition images (boot/vendor_boot/dtbo/vbmeta) to custom ROM source
+[✓] Add lpmake/android-tools install step
+[✓] Update README_MERGE.md and merge_manifest.txt
+[✓] Validate script syntax (bash -n)
+[✓] Commit and push changes
+[✓] Comment on issue #5
+[0m
+Done. Committed and pushed to `main` (commit `08d0e09`), and commented on issue #5.
+
+Changes in `.agent-work/tools/build_merge.sh:1`:
+- `super.img` is now **rebuilt** from the custom `system`/`vendor`/`product`/`system_ext` images using `lpmake` (partition sizes detected from the official `super.img` via `lpunpack`, or overridden via `SUPER_*` env vars).
+- Physical partition images (`boot.img`, `vendor_boot.img`, `dtbo.img`, `vbmeta.img`, `vbmeta_system.img`, `rescue.img`, `cust.img`) now come from the **custom ROM** with official fallback.
+- Firmware/flash-structure (bootloader/modem/gpt/rawprogram/firehose) stays **official**.
+- Added `lpmake`/`fastboot` tool check with install instructions.
+
+Updated `README_MERGE.md` and `merge_manifest.txt` to match.
+
+Caveat: I could not run an end-to-end build in this ephemeral runner (needs the ~5.8 GB official + ~2.33 GB custom images and a prebuilt `lpmake` binary, which isn't available via apt). The script is syntax-validated (`bash -n`) and ready to run in a runner with `lpmake` + `fastboot` in `PATH` and the images extracted.
