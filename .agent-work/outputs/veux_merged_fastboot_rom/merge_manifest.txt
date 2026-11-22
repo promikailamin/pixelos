@@ -2,7 +2,7 @@ Merged ROM manifest - Redmi Note 11 Pro 5G (veux)
 =================================================
 
 Package: veux_merged_fastboot_rom
-Generated: 2026-11-22 (CI runner, untested)
+Generated: 2026-11-22 (CI runner, super.img rebuilt with lpmake, untested)
 
 SOURCE 1 - OFFICIAL ROM (firmware + structure)
   URL: https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS1.0.12.0.TKCMIXM/veux_global_images_OS1.0.12.0.TKCMIXM_20241205.0000.00_13.0_global_cda1240a45.tgz

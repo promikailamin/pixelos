@@ -139,15 +139,25 @@ for img in system.img vendor.img product.img system_ext.img; do
 done
 
 echo "[4/5] Rebuilding super.img from custom logical partitions (lpmake)"
+# lpmake syntax (android-tools-static / AOSP partition_tools):
+#   --partition=NAME:ATTR:SIZE   defines a logical partition
+#   --image=NAME=FILE            seeds the partition with an image file
+#   --device-size                physical super partition size
+#   --metadata-slots             must be >= 1
 lpmake \
-    --metadata-size "$METADATA_SIZE" \
-    --super-name super \
-    --super-partition-size "$SUPER_SIZE" \
-    --partition system:$SUPER_SYSTEM_SIZE:"$OUT/images/custom_system.img" \
-    --partition vendor:$SUPER_VENDOR_SIZE:"$OUT/images/custom_vendor.img" \
-    --partition product:$SUPER_PRODUCT_SIZE:"$OUT/images/custom_product.img" \
-    --partition system_ext:$SUPER_SYSTEM_EXT_SIZE:"$OUT/images/custom_system_ext.img" \
-    --output "$SUPER_IMG" \
+    --metadata-size="$METADATA_SIZE" \
+    --metadata-slots=2 \
+    --super-name=super \
+    --device-size="$SUPER_SIZE" \
+    --partition=system:none:$SUPER_SYSTEM_SIZE \
+    --image=system="$OUT/images/custom_system.img" \
+    --partition=vendor:none:$SUPER_VENDOR_SIZE \
+    --image=vendor="$OUT/images/custom_vendor.img" \
+    --partition=product:none:$SUPER_PRODUCT_SIZE \
+    --image=product="$OUT/images/custom_product.img" \
+    --partition=system_ext:none:$SUPER_SYSTEM_EXT_SIZE \
+    --image=system_ext="$OUT/images/custom_system_ext.img" \
+    --output="$SUPER_IMG" \
     --sparse
 echo "  super.img built -> $SUPER_IMG"
 du -h "$SUPER_IMG"

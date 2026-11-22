@@ -21,13 +21,20 @@ The merge keeps the **official ROM's firmware / flash structure** and takes the 
 
 ## How the merge is built
 Run `.agent-work/tools/build_merge.sh` from the repo root in a runner that has
-`lpmake` (AOSP `system/tools/lpmake`) and `fastboot` (android-tools) in PATH.
+`lpmake` (AOSP `system/tools/lpmake`, e.g. the prebuilt `android-tools-static`
+`standardlayout-extra` release) and `fastboot` (android-tools) in PATH.
 The script:
 1. Copies official firmware + flash structure (kept official).
 2. Copies physical partition images from the custom ROM (official fallback).
 3. Copies custom logical images (system/vendor/product/system_ext).
-4. Rebuilds `super.img` with `lpmake --partition system:... --partition vendor:... ...`.
+4. Rebuilds `super.img` with `lpmake` from the custom logical images.
 5. Copies package metadata.
+
+`lpmake` is not distributed via apt; provide a prebuilt binary (e.g.
+`https://github.com/meator/android-tools-static/releases`,
+`android-tools-static-linux-standardlayout-extra-<arch>.tar.gz`) or build it
+from AOSP `system/extras/partition_tools`. `fastboot` is provided by
+android-tools / platform-tools.
 
 Logical partition sizes default to compiled-in values and **must** be verified
 against the official `super.img` (`lpunpack`). Override via env vars:
@@ -36,12 +43,10 @@ against the official `super.img` (`lpunpack`). Override via env vars:
 
 ## What is NOT included / what still must be done
 1. **`super.img` IS rebuilt** by `build_merge.sh` using `lpmake` from the custom
-   `system`/`vendor`/`product`/`system_ext` images. Verify the partition sizes
-   match your official `super.img` before flashing.
+   `system`/`vendor`/`product`/`system_ext` images. This release ships the rebuilt
+   `super.img` in `images/`. Verify the partition sizes match your official
+   `super.img` before flashing.
 2. **`userdata.img` is intentionally excluded.** Flashing it would overwrite user data. Wipe userdata via fastboot instead.
-3. **`lpmake` must be available in PATH.** It is not distributed via apt; build it
-   from AOSP `system/tools/lpmake` or provide a prebuilt binary. `fastboot` is
-   provided by android-tools / platform-tools.
 
 ## CRITICAL SAFETY WARNINGS — READ BEFORE FLASHING
 - **This merged ROM is UNTESTED. It was built in a CI runner and has NOT been flashed to a real device.** Flashing it may soft-brick (bootloop) or hard-brick your Redmi Note 11 Pro 5G.
@@ -49,13 +54,6 @@ against the official `super.img` (`lpunpack`). Override via env vars:
 - **Version mismatch:** The official ROM is HyperOS OS1.0.12.0.TKCMIXM (Android 13). The custom ROM's base version is unknown. Mixing system/vendor from different builds can cause bootloops, broken IMEI, camera, fingerprint, or widevine.
 - **Have a recovery plan:** Know how to enter EDL / fastbootd and re-flash the official stock ROM before attempting anything.
 - **Do not flash this on a daily-driver device unless you accept the risk of losing the device.**
-
-## How to finish the merge (manual, on a Linux PC with Android SDK)
-1. Install `android-tools` (fastboot) and `lpmake` (from AOSP / android-sdk).
-2. Determine official super logical partition sizes (system/vendor/product/system_ext) from the official `super.img` (e.g. `lpunpack`).
-3. `lpmake --metadata-size ... --super-name super --partition system:size:custom_system.img --partition vendor:size:custom_vendor.img --partition product:size:custom_product.img --partition system_ext:size:custom_system_ext.img --output super.img`
-4. Copy the new `super.img` into `images/`, replacing the official one.
-5. Flash with fastboot (unlocked bootloader, AVB disabled), then wipe userdata/cache/metadata.
 
 ## Extraction notes
 - Official `super.img` unsparsed to 9,126,805,504 bytes (~8.5 GiB logical).
