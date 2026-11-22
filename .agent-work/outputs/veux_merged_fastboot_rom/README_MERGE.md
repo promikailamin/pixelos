@@ -14,15 +14,34 @@ The merge keeps the **official ROM's firmware / flash structure** and takes the 
 |-----------|--------|-------|
 | bootloader, modem, abl, tz, rpm, devcfg, hyp, xbl, qupfw, NON-HLOS, Core_NON-HLOS, ... | OFFICIAL | Hardware-specific firmware; must stay official |
 | gpt partition table, rawprogram/patch XML, prog_firehose ELFs | OFFICIAL | Flash instructions for MSMDownload/fastboot |
-| boot.img, vendor_boot.img, dtbo.img, vbmeta.img, vbmeta_system.img, rescue.img, cust.img | OFFICIAL | Verified-boot chain kept official |
+| boot.img, vendor_boot.img, dtbo.img, vbmeta.img, vbmeta_system.img, rescue.img, cust.img | CUSTOM | Physical partitions taken from custom ROM (fall back to official if missing from payload) |
 | system.img, vendor.img, product.img, system_ext.img | CUSTOM | Extracted from custom `payload.bin` |
+| super.img | REBUILT | Rebuilt from custom logical partitions with `lpmake` using official partition sizes |
 | misc.txt, anti_version.txt | OFFICIAL | Package metadata |
 
+## How the merge is built
+Run `.agent-work/tools/build_merge.sh` from the repo root in a runner that has
+`lpmake` (AOSP `system/tools/lpmake`) and `fastboot` (android-tools) in PATH.
+The script:
+1. Copies official firmware + flash structure (kept official).
+2. Copies physical partition images from the custom ROM (official fallback).
+3. Copies custom logical images (system/vendor/product/system_ext).
+4. Rebuilds `super.img` with `lpmake --partition system:... --partition vendor:... ...`.
+5. Copies package metadata.
+
+Logical partition sizes default to compiled-in values and **must** be verified
+against the official `super.img` (`lpunpack`). Override via env vars:
+`SUPER_SIZE`, `SUPER_SYSTEM_SIZE`, `SUPER_VENDOR_SIZE`, `SUPER_PRODUCT_SIZE`,
+`SUPER_SYSTEM_EXT_SIZE`.
+
 ## What is NOT included / what still must be done
-1. **`super.img` is NOT rebuilt.** On veux (Virtual A/B, dynamic partitions), `system`, `vendor`, `product`, `system_ext` live *inside* `super.img`. This package provides them as separate `custom_*.img` files. You must rebuild `super.img` with `lpmake` (Android SDK) using the custom images and the official partition sizes, then place it in `images/`.
-   - `lpmake` is not installed in this runner; it was not available via apt.
+1. **`super.img` IS rebuilt** by `build_merge.sh` using `lpmake` from the custom
+   `system`/`vendor`/`product`/`system_ext` images. Verify the partition sizes
+   match your official `super.img` before flashing.
 2. **`userdata.img` is intentionally excluded.** Flashing it would overwrite user data. Wipe userdata via fastboot instead.
-3. **`custom_boot.img` / `custom_dtbo.img` are provided as alternatives.** The package uses OFFICIAL `boot.img`, `dtbo.img`, `vbmeta.img`, `vbmeta_system.img` to keep the verified-boot chain consistent with the official firmware.
+3. **`lpmake` must be available in PATH.** It is not distributed via apt; build it
+   from AOSP `system/tools/lpmake` or provide a prebuilt binary. `fastboot` is
+   provided by android-tools / platform-tools.
 
 ## CRITICAL SAFETY WARNINGS — READ BEFORE FLASHING
 - **This merged ROM is UNTESTED. It was built in a CI runner and has NOT been flashed to a real device.** Flashing it may soft-brick (bootloop) or hard-brick your Redmi Note 11 Pro 5G.

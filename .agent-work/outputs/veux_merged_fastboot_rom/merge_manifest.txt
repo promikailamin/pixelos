@@ -26,16 +26,16 @@ DEVICE
 MERGE POLICY
   - Official firmware + flash structure kept (bootloader/modem/ABL/etc. must match hardware)
   - Custom system/vendor/product/system_ext taken from custom payload
-  - Official boot.img/dtbo.img/vbmeta.img/vbmeta_system.img kept (verified-boot chain)
+  - Physical boot.img/vendor_boot.img/dtbo.img/vbmeta.img/vbmeta_system.img taken from custom ROM (official fallback if missing)
+  - super.img REBUILT from custom logical partitions with lpmake (official partition sizes)
   - userdata.img intentionally excluded (do not flash user data)
-  - super.img NOT rebuilt (requires lpmake; see README_MERGE.md)
 
 FILES IN images/
-  OFFICIAL: boot.img vendor_boot.img dtbo.img vbmeta.img vbmeta_system.img rescue.img cust.img
-            abl.elf tz.mbn rpm.mbn devcfg.mbn hyp.mbn xbl_config.elf NON-HLOS.bin Core_NON-HLOS.bin
+  OFFICIAL: abl.elf tz.mbn rpm.mbn devcfg.mbn hyp.mbn xbl_config.elf NON-HLOS.bin Core_NON-HLOS.bin
             BTFM.bin dspso.bin imagefv.elf featenabler.mbn qupv3fw.elf
             prog_firehose_ddr.elf prog_firehose_lite.elf gpt_*.bin rawprogram*.xml patch*.xml crclist.txt sparsecrclist.txt
-  CUSTOM:   custom_system.img custom_vendor.img custom_product.img custom_system_ext.img custom_boot.img custom_dtbo.img
+  CUSTOM:   boot.img vendor_boot.img dtbo.img vbmeta.img vbmeta_system.img rescue.img cust.img
+            custom_system.img custom_vendor.img custom_product.img custom_system_ext.img super.img
   TOP LEVEL: misc.txt anti_version.txt elf_path.txt crclist.txt
 
 SAFETY
